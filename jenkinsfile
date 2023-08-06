@@ -1,0 +1,48 @@
+pipeline {
+    agent { label 'jdk-17' }
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
+    triggers {
+        pollSCM('* * * * *')
+    }
+    tools {
+        jdk 'jdk_17'
+    }
+    stages {
+        stage('vcs') {
+            steps {
+                git url: 'https://github.com/yashdeeppavan/spring-petclinic.git',
+                    branch: 'develop'
+            }
+        }
+        stage('build and package') {
+            steps {
+                 rtMavenDeployer (
+                    id: "SPC_DEPLOYER",
+                    serverId: "JFROG_MOUNIKA",
+                    releaseRepo: 'mounika-libs-release-local',
+                    snapshotRepo: 'mounika-libs-snapshot-local'
+                )
+                rtMavenRun (
+                    tool: 'MAVEN_3.9', // Tool name from Jenkins configuration
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                    deployerId: "SPC_DEPLOYER"
+                    //,
+                    //buildName: "${JOB_NAME}",
+                    //buildNumber: "${BUILD_ID}"
+                )
+                rtPublishBuildInfo (
+                    serverId: "JFROG_MOUNIKA"
+                )
+            }
+        }
+        stage('reporting') {
+            steps {
+                junit testResults: '**/target/surefire-reports/TEST-*.xml'
+            }
+        }
+    }
+
+}
