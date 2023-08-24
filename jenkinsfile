@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'jdk-17' }
+    agent { label 'JDK-17' }
     options {
         timeout(time: 30, unit: 'MINUTES')
     }
@@ -21,7 +21,7 @@ pipeline {
                  rtMavenDeployer (
                     id: "SPC_DEPLOYER",
                     serverId: "JFROG_MOUNIKA",
-                    releaseRepo: 'mounika-libs-release-local',
+                    releaseRepo: 'pavanyash-libs-release-local',
                     snapshotRepo: 'mounika-libs-snapshot-local'
                 )
                 rtMavenRun (
